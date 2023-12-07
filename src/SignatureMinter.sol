@@ -6,7 +6,7 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import {BitMaps} from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 
-import {IMintable} from "./interfaces/IMintable.sol";
+import {IMintableERC721} from "./interfaces/IMintableERC721.sol";
 
 contract SignatureMinter is Ownable {
     event SaleStatusChange(uint256 indexed saleId, bool enabled);
@@ -20,7 +20,7 @@ contract SignatureMinter is Ownable {
         address signerAddress;
     }
 
-    IMintable public immutable tokens;
+    IMintableERC721 public immutable tokens;
 
     uint256 private _maxSupply;
 
@@ -44,7 +44,7 @@ contract SignatureMinter is Ownable {
         _;
     }
 
-    constructor(IMintable tokens_) Ownable(msg.sender) {
+    constructor(IMintableERC721 tokens_) Ownable(msg.sender) {
         tokens = tokens_;
     }
 

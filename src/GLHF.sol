@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-import {IMintable} from "./interfaces/IMintable.sol";
+import {IMintableERC721} from "./interfaces/IMintableERC721.sol";
 import {ITokenRenderer} from "./interfaces/ITokenRenderer.sol";
 
-contract GLHF is ERC721, AccessControl, IMintable {
+contract GLHF is ERC721, AccessControl, IMintableERC721 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     uint256 public constant MAX_SUPPLY = 5000;
 
@@ -16,17 +17,23 @@ contract GLHF is ERC721, AccessControl, IMintable {
     uint256 _nextIndex;
 
     constructor() ERC721("GLHF", "GLHF") {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) {
+    function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) returns (uint256[] memory) {
         uint256 startTokenId = _nextIndex;
         require(startTokenId + quantity <= MAX_SUPPLY, "Exceeds max supply");
 
         for (uint256 i; i < quantity; i++) {
-            _safeMint(to, startTokenId + i);
+            _mint(to, startTokenId + i);
         }
         _nextIndex += quantity;
+
+        return _range(startTokenId, quantity);
+    }
+
+    function burn(uint256 tokenId) external {
+        _update(address(0), tokenId, _msgSender());
     }
 
     function totalSupply() external view returns (uint256) {
@@ -39,7 +46,9 @@ contract GLHF is ERC721, AccessControl, IMintable {
         return renderer.tokenURI(tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721, AccessControl, IERC165) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -47,5 +56,12 @@ contract GLHF is ERC721, AccessControl, IMintable {
         require(address(renderer_) != address(0), "Can't set to zero address");
 
         renderer = renderer_;
+    }
+
+    function _range(uint256 from, uint256 length) internal pure returns (uint256[] memory result) {
+        result = new uint256[](length);
+        for (uint256 i; i < length; i++) {
+            result[i] = from + i;
+        }
     }
 }
