@@ -44,7 +44,7 @@ contract SignatureMinter is Ownable {
         _;
     }
 
-    constructor(IMintableERC721 tokens_) Ownable(msg.sender) {
+    constructor(IMintableERC721 tokens_) Ownable(_msgSender()) {
         tokens = tokens_;
     }
 
