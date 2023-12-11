@@ -3,12 +3,13 @@ pragma solidity ^0.8.23;
 
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721Royalty} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 import {IMintableERC721} from "./interfaces/IMintableERC721.sol";
 import {ITokenRenderer} from "./interfaces/ITokenRenderer.sol";
 
-contract GLHF is ERC721, AccessControl, IMintableERC721 {
+contract GLHF is ERC721Royalty, AccessControl, IMintableERC721 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     uint256 public constant MAX_SUPPLY = 5000;
 
@@ -18,6 +19,7 @@ contract GLHF is ERC721, AccessControl, IMintableERC721 {
 
     constructor() ERC721("GLHF", "GLHF") {
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setDefaultRoyalty(_msgSender(), 420);
     }
 
     function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) returns (uint256[] memory) {
@@ -48,8 +50,12 @@ contract GLHF is ERC721, AccessControl, IMintableERC721 {
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC721, AccessControl, IERC165) returns (bool) {
+    ) public view virtual override(ERC721Royalty, AccessControl, IERC165) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function setRoyalty(address recipient, uint96 feeNumerator) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setDefaultRoyalty(recipient, feeNumerator);
     }
 
     function setRenderer(ITokenRenderer renderer_) external onlyRole(DEFAULT_ADMIN_ROLE) {
