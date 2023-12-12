@@ -43,24 +43,26 @@ contract AuctionHouse is IAuctionHouse, Pausable, ReentrancyGuard, Ownable {
     // The active auction
     IAuctionHouse.Auction public auction;
 
-    constructor(
+    constructor(address _owner, address _treasury) Ownable(_owner) {
+        _pause();
+
+        treasury = _treasury;
+    }
+
+    function configure(
         IMintableERC721 _tokens,
         address _weth,
         uint256 _timeBuffer,
         uint256 _reservePrice,
         uint8 _minBidIncrementPercentage,
         uint256 _duration
-    ) Ownable(_msgSender()) {
-        _pause();
-
+    ) external onlyOwner {
         tokens = _tokens;
         weth = _weth;
         timeBuffer = _timeBuffer;
         reservePrice = _reservePrice;
         minBidIncrementPercentage = _minBidIncrementPercentage;
         duration = _duration;
-
-        treasury = _msgSender();
     }
 
     /**

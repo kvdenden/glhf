@@ -10,7 +10,7 @@ contract TokenRenderer is Ownable, ITokenRenderer {
     using Strings for uint256;
     string private _baseURI;
 
-    constructor(string memory baseURI) Ownable(_msgSender()) {
+    constructor(string memory baseURI, address owner) Ownable(owner) {
         _baseURI = baseURI;
     }
 

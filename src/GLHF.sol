@@ -17,9 +17,9 @@ contract GLHF is ERC721Royalty, AccessControl, IMintableERC721 {
 
     uint256 _nextIndex;
 
-    constructor() ERC721("GLHF", "GLHF") {
-        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setDefaultRoyalty(_msgSender(), 420);
+    constructor(address admin, address treasury) ERC721("GLHF", "GLHF") {
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _setDefaultRoyalty(treasury, 420);
     }
 
     function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) returns (uint256[] memory) {

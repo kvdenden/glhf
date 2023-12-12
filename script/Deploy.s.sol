@@ -15,22 +15,27 @@ contract DeployScript is Script {
     function setUp() public {}
 
     function run() public {
+        bytes32 salt = vm.envBytes32("CREATE2_SALT");
+
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        WETH9 weth = new WETH9();
+        address admin = vm.addr(deployerPrivateKey);
+        address treasury = vm.envAddress("TREASURY_ADDRESS");
+
+        WETH9 weth = new WETH9{salt: salt}();
         console2.log("WETH deployed at address: ", address(weth));
 
-        GLHF glhf = new GLHF();
+        GLHF glhf = new GLHF{salt: salt}(admin, treasury);
         console2.log("GLHF deployed at address: ", address(glhf));
 
         string memory baseURI = vm.envString("BASE_URI");
-        TokenRenderer renderer = new TokenRenderer(baseURI);
+        TokenRenderer renderer = new TokenRenderer{salt: salt}(baseURI, admin);
         console2.log("TokenRenderer deployed at address: ", address(renderer));
 
         glhf.setRenderer(renderer);
 
-        SignatureMinter minter = new SignatureMinter(glhf);
+        SignatureMinter minter = new SignatureMinter{salt: salt}(glhf, admin);
         console2.log("SignatureMinter deployed at address: ", address(minter));
 
         uint256 timeBuffer = vm.envUint("AUCTION_TIME_BUFFER");
@@ -38,7 +43,8 @@ contract DeployScript is Script {
         uint256 minBidIncrementPercentage = vm.envUint("AUCTION_MIN_BID_INCREMENT_PERCENTAGE");
         uint256 duration = vm.envUint("AUCTION_DURATION");
 
-        AuctionHouse auctionHouse = new AuctionHouse(
+        AuctionHouse auctionHouse = new AuctionHouse{salt: salt}(admin, treasury);
+        auctionHouse.configure(
             glhf,
             address(weth),
             timeBuffer,
