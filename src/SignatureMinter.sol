@@ -102,6 +102,11 @@ contract SignatureMinter is Ownable {
         _maxSupply = maxSupply;
     }
 
+    function withdraw(address receiver) external onlyOwner {
+        (bool success, ) = receiver.call{value: address(this).balance}("");
+        require(success, "Withdrawal failed");
+    }
+
     function _validateSignature(
         uint256 saleId,
         uint256 nonce,
