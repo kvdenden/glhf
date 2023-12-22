@@ -8,12 +8,14 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 import {IMintableERC721} from "./interfaces/IMintableERC721.sol";
 import {ITokenRenderer} from "./interfaces/ITokenRenderer.sol";
+import {ITokenUpdateHandler} from "./interfaces/ITokenUpdateHandler.sol";
 
 contract GLHF is ERC721Royalty, AccessControl, IMintableERC721 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     uint256 public constant MAX_SUPPLY = 5000;
 
     ITokenRenderer public renderer;
+    ITokenUpdateHandler public updateHandler;
 
     uint256 _nextIndex;
 
@@ -62,6 +64,18 @@ contract GLHF is ERC721Royalty, AccessControl, IMintableERC721 {
         require(address(renderer_) != address(0), "Can't set to zero address");
 
         renderer = renderer_;
+    }
+
+    function setTokenUpdateHandler(ITokenUpdateHandler handler_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        updateHandler = handler_;
+    }
+
+    function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
+        if (address(updateHandler) != address(0)) {
+            updateHandler.handleUpdate(address(this), to, tokenId, auth);
+        }
+
+        return super._update(to, tokenId, auth);
     }
 
     function _range(uint256 from, uint256 length) internal pure returns (uint256[] memory result) {
