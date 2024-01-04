@@ -12,36 +12,39 @@ import {ITokenUpdateHandler} from "./interfaces/ITokenUpdateHandler.sol";
 
 contract GLHF is ERC721Royalty, AccessControl, IMintableERC721 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    uint256 public constant MAX_SUPPLY = 5000;
+
+    uint256 public immutable maxSupply = 3690;
 
     ITokenRenderer public renderer;
     ITokenUpdateHandler public updateHandler;
 
-    uint256 _nextIndex;
+    uint256 _mintCounter;
+    uint256 _burnCounter;
 
     constructor(address admin, address treasury) ERC721("GLHF", "GLHF") {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
-        _setDefaultRoyalty(treasury, 420);
+        _setDefaultRoyalty(treasury, 50);
     }
 
     function mint(address to, uint256 quantity) external onlyRole(MINTER_ROLE) returns (uint256[] memory) {
-        uint256 startTokenId = _nextIndex;
-        require(startTokenId + quantity <= MAX_SUPPLY, "Exceeds max supply");
+        uint256 startTokenId = _mintCounter;
+        require(startTokenId + quantity <= maxSupply, "Exceeds max supply");
 
         for (uint256 i; i < quantity; i++) {
             _mint(to, startTokenId + i);
         }
-        _nextIndex += quantity;
+        _mintCounter += quantity;
 
         return _range(startTokenId, quantity);
     }
 
     function burn(uint256 tokenId) external {
         _update(address(0), tokenId, _msgSender());
+        _burnCounter++;
     }
 
     function totalSupply() external view returns (uint256) {
-        return _nextIndex;
+        return _mintCounter - _burnCounter;
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {

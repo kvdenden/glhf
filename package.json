@@ -2,9 +2,9 @@
   "name": "glhf",
   "scripts": {
     "anvil": "anvil",
-    "deploy": "dotenv -- forge script script/Deploy.s.sol:DeployScript --fork-url http://localhost:4321 --broadcast",
-    "init-sale": "dotenv -- forge script script/InitSale.s.sol:InitSaleScript --fork-url http://localhost:4321 --broadcast",
-    "start-auction": "dotenv -- forge script script/StartAuction.s.sol:StartAuctionScript --fork-url http://localhost:4321 --broadcast"
+    "deploy": "dotenv -- forge script script/Deploy.s.sol:DeployScript --fork-url http://localhost:8545 --broadcast",
+    "init-sale": "dotenv -- forge script script/InitSale.s.sol:InitSaleScript --fork-url http://localhost:8545 --broadcast",
+    "start-auction": "dotenv -- forge script script/StartAuction.s.sol:StartAuctionScript --fork-url http://localhost:8545 --broadcast"
   },
   "devDependencies": {
     "dotenv-cli": "^7.3.0"
