@@ -53,13 +53,13 @@ contract SignatureMinter is Ownable {
         uint256 amount,
         uint256 nonce,
         bytes calldata signature
-    ) external payable virtual canMint(saleId, _msgSender(), amount) {
+    ) external payable virtual canMint(saleId, msg.sender, amount) {
         require(_validateSignature(saleId, nonce, signature), "Invalid signature");
         require(!_allowlist[saleId].get(nonce), "Nonce already used");
 
         _allowlist[saleId].set(nonce);
 
-        _mint(_msgSender(), amount);
+        _mint(msg.sender, amount);
     }
 
     function getSaleConfig(uint256 saleId) external view returns (SaleConfig memory) {
@@ -112,7 +112,7 @@ contract SignatureMinter is Ownable {
         uint256 nonce,
         bytes calldata signature
     ) internal view virtual returns (bool) {
-        bytes32 message = keccak256(abi.encodePacked(saleId, nonce, _msgSender()));
+        bytes32 message = keccak256(abi.encodePacked(saleId, nonce, msg.sender));
         bytes32 messageHash = MessageHashUtils.toEthSignedMessageHash(message);
 
         return SignatureChecker.isValidSignatureNow(_saleConfig[saleId].signerAddress, messageHash, signature);
