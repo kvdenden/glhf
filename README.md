@@ -9,6 +9,12 @@
 
 ## Usage
 
+### Install
+
+```shell
+$ forge install --no-commit
+```
+
 ### Build
 
 ```shell
