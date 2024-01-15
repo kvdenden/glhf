@@ -66,7 +66,7 @@ contract AuctionHouse is IAuctionHouse, Pausable, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Settle the current auction, mint a new Noun, and put it up for auction.
+     * @notice Settle the current auction, mint a new token, and put it up for auction.
      */
     function settleCurrentAndCreateNewAuction() external override nonReentrant whenNotPaused {
         _settleAuction();
@@ -82,7 +82,7 @@ contract AuctionHouse is IAuctionHouse, Pausable, ReentrancyGuard, Ownable {
     }
 
     /**
-     * @notice Create a bid for a Noun, with a given amount.
+     * @notice Create a bid for a token, with a given amount.
      * @dev This contract only accepts payment in ETH.
      */
     function createBid(uint256 tokenId) external payable override nonReentrant {
@@ -222,7 +222,7 @@ contract AuctionHouse is IAuctionHouse, Pausable, ReentrancyGuard, Ownable {
 
     /**
      * @notice Settle an auction, finalizing the bid and paying out to the owner.
-     * @dev If there are no bids, the Noun is burned.
+     * @dev If there are no bids, the token is sent to the treasury.
      */
     function _settleAuction() internal {
         IAuctionHouse.Auction memory _auction = auction;
