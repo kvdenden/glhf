@@ -19,7 +19,6 @@ contract GLHF is ERC721Royalty, AccessControl, IMintableERC721 {
     ITokenUpdateHandler public updateHandler;
 
     uint256 _mintCounter;
-    uint256 _burnCounter;
 
     constructor(address admin, address treasury) ERC721("GLHF", "GLHF") {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
@@ -38,13 +37,8 @@ contract GLHF is ERC721Royalty, AccessControl, IMintableERC721 {
         return _range(startTokenId, quantity);
     }
 
-    function burn(uint256 tokenId) external {
-        _update(address(0), tokenId, _msgSender());
-        _burnCounter++;
-    }
-
     function totalSupply() external view returns (uint256) {
-        return _mintCounter - _burnCounter;
+        return _mintCounter;
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
